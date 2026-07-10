@@ -8,20 +8,18 @@ use Inertia\Inertia;
 
 class RestaurantController extends Controller
 {
-    public function index(Request $request)
-    {
-        $restaurants = Restaurant::query()
-            ->active()
-            ->when($request->string('category')->isNotEmpty(), fn ($q) => $q->where('category', $request->input('category')))
-            ->when($request->string('search')->isNotEmpty(), fn ($q) => $q->where('name', 'like', '%'.$request->input('search').'%'))
-            ->orderByDesc('rating')
-            ->get();
+   public function index(Request $request)
+{
+    $restaurants = Restaurant::query()
+        ->active()
+        ->with('menuItems:id,restaurant_id,name,description,price')
+        ->orderByDesc('rating')
+        ->get();
 
-        return Inertia::render('Restaurants/Index', [
-            'restaurants' => $restaurants,
-            'filters' => $request->only(['category', 'search']),
-        ]);
-    }
+    return Inertia::render('Restaurants/Index', [
+        'restaurants' => $restaurants,
+    ]);
+}
 
     public function show(Restaurant $restaurant)
     {
