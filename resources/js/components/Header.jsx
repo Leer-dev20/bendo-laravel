@@ -33,7 +33,7 @@ export const Header = () => {
                         </Button>
                     ) : (
                         <Button asChild variant="emerald" size="sm" className="rounded-full font-semibold">
-                            <Link href="/auth"><LogIn className="h-4 w-4" />Connexion</Link>
+                            <Link href="/login"><LogIn className="h-4 w-4" />Connexion</Link>
                         </Button>
                     )}
                 </div>

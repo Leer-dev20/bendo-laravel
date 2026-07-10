@@ -2,14 +2,7 @@
 
 namespace App\Providers;
 
-use App\Models\Order;
-use App\Models\Restaurant;
-use App\Models\Wallet;
-use App\Observers\OrderObserver;
-use App\Policies\OrderPolicy;
-use App\Policies\RestaurantPolicy;
-use App\Policies\WalletPolicy;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -27,10 +20,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Order::observe(OrderObserver::class);
-
-        Gate::policy(Order::class, OrderPolicy::class);
-        Gate::policy(Restaurant::class, RestaurantPolicy::class);
-        Gate::policy(Wallet::class, WalletPolicy::class);
+        Vite::prefetch(concurrency: 3);
     }
 }
