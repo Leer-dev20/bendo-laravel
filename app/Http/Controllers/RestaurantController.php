@@ -21,16 +21,16 @@ class RestaurantController extends Controller
     ]);
 }
 
-    public function show(Restaurant $restaurant)
-    {
-        $this->authorize('view', $restaurant);
+ public function show(Restaurant $restaurant)
+{
+    $this->authorize('view', $restaurant);
 
-        $restaurant->load(['menuItems', 'dailyMenus.menuItem']);
+    $restaurant->load('menuItems');
 
-        return Inertia::render('Restaurants/Show', [
-            'restaurant' => $restaurant,
-        ]);
-    }
+    return Inertia::render('Restaurants/Show', [
+        'restaurant' => $restaurant,
+    ]);
+}
 
     public function store(Request $request)
     {
@@ -80,4 +80,5 @@ class RestaurantController extends Controller
 
         return redirect()->route('restaurants.index')->with('success', 'Restaurant supprimé.');
     }
+
 }
