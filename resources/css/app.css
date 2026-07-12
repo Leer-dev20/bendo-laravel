@@ -44,6 +44,15 @@
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
+
+  --color-sidebar: hsl(var(--sidebar-background));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
 }
 
 @utility container {
@@ -111,6 +120,15 @@
     --shadow-warm: 0 20px 50px -15px hsl(25 92% 44% / 0.35);
     --shadow-card: 0 8px 24px -8px hsl(25 60% 12% / 0.15);
     --shadow-glow: 0 0 60px hsl(45 100% 65% / 0.5);
+
+    --sidebar-background: 39 33% 97%;
+    --sidebar-foreground: 25 60% 12%;
+    --sidebar-primary: 25 92% 44%;
+    --sidebar-primary-foreground: 39 33% 97%;
+    --sidebar-accent: 39 25% 92%;
+    --sidebar-accent-foreground: 25 60% 12%;
+    --sidebar-border: 30 25% 88%;
+    --sidebar-ring: 25 92% 44%;
   }
 
   * {
@@ -121,7 +139,9 @@
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
     font-family: 'Poppins', system-ui, sans-serif;
+    overflow-x: hidden;
   }
+
 }
 
 @layer utilities {

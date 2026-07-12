@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Restaurant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class RestaurantController extends Controller
@@ -32,45 +33,80 @@ class RestaurantController extends Controller
     ]);
 }
 
-    public function store(Request $request)
-    {
-        $this->authorize('create', Restaurant::class);
+public function store(Request $request)
+{
+    $this->authorize('create', Restaurant::class);
 
-        $data = $request->validate([
-            'slug' => 'required|string|unique:restaurants,slug',
-            'name' => 'required|string|max:255',
-            'category' => 'required|string|max:255',
-            'image' => 'nullable|string',
-            'delivery_time' => 'nullable|string',
-            'delivery_fee' => 'nullable|integer|min:0',
-            'district' => 'nullable|string',
-            'tags' => 'nullable|array',
-        ]);
+    $data = $request->validate([
+        'name' => 'required|string|max:255',
+        'category' => 'required|string|max:255',
+        'image' => 'nullable|string',
+        'delivery_time' => 'nullable|string',
+        'delivery_fee' => 'nullable|integer|min:0',
+        'district' => 'nullable|string',
+        'rating' => 'nullable|numeric|min:0|max:5',
+        'tags' => 'nullable|string',
+        'is_active' => 'nullable|boolean',
+    ]);
 
-        $restaurant = Restaurant::create($data);
+    $data['image'] = $data['image'] ?? '';
+    $data['district'] = $data['district'] ?? '';
+    $data['delivery_time'] = $data['delivery_time'] ?? '25-35 min';
 
-        return redirect()->route('restaurants.show', $restaurant)->with('success', 'Restaurant créé.');
+    $data['tags'] = collect(explode(',', $data['tags'] ?? ''))
+        ->map(fn ($t) => trim($t))
+        ->filter()
+        ->take(10)
+        ->values()
+        ->all();
+
+    $baseSlug = Str::slug($data['name']);
+    $slug = $baseSlug;
+    $i = 1;
+    while (Restaurant::where('slug', $slug)->exists()) {
+        $slug = "{$baseSlug}-{$i}";
+        $i++;
+    }
+    $data['slug'] = $slug;
+
+    Restaurant::create($data);
+
+    return back()->with('success', 'Restaurant créé.');
+}
+
+public function update(Request $request, Restaurant $restaurant)
+{
+    $this->authorize('update', $restaurant);
+
+    $data = $request->validate([
+        'name' => 'sometimes|string|max:255',
+        'category' => 'sometimes|string|max:255',
+        'image' => 'nullable|string',
+        'delivery_time' => 'nullable|string',
+        'delivery_fee' => 'nullable|integer|min:0',
+        'district' => 'nullable|string',
+        'rating' => 'nullable|numeric|min:0|max:5',
+        'tags' => 'nullable|string',
+        'is_active' => 'nullable|boolean',
+    ]);
+
+    $data['image'] = $data['image'] ?? '';
+    $data['district'] = $data['district'] ?? '';
+    $data['delivery_time'] = $data['delivery_time'] ?? '25-35 min';
+
+    if (isset($data['tags'])) {
+        $data['tags'] = collect(explode(',', $data['tags']))
+            ->map(fn ($t) => trim($t))
+            ->filter()
+            ->take(10)
+            ->values()
+            ->all();
     }
 
-    public function update(Request $request, Restaurant $restaurant)
-    {
-        $this->authorize('update', $restaurant);
+    $restaurant->update($data);
 
-        $data = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'category' => 'sometimes|string|max:255',
-            'image' => 'nullable|string',
-            'delivery_time' => 'nullable|string',
-            'delivery_fee' => 'nullable|integer|min:0',
-            'district' => 'nullable|string',
-            'tags' => 'nullable|array',
-            'is_active' => 'sometimes|boolean',
-        ]);
-
-        $restaurant->update($data);
-
-        return back()->with('success', 'Restaurant mis à jour.');
-    }
+    return back()->with('success', 'Restaurant mis à jour.');
+}
 
     public function destroy(Restaurant $restaurant)
     {

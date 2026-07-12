@@ -1,19 +1,21 @@
 import { cn } from '@/lib/utils';
+import { Link } from '@inertiajs/react';
+import bendoLogo from '@/assets/bendologo.png';
 
 export const BendoLogo = ({ className, showWordmark = true }) => {
     return (
-        <div className={cn('flex items-center', className)}>
+        <Link href="/" className={cn('flex items-center', className)}>
             {showWordmark ? (
                 <img
-                    src="/frontend-assets/bendo-logo.png"
+                    src={bendoLogo}
                     alt="Bendo logo"
-                    className="h-9 md:h-10 w-auto object-contain"
+                    className="h-16 md:h-20 w-auto object-contain"
                     loading="eager"
                 />
             ) : (
-                <BendoMark className="h-9 w-9" />
+                <BendoMark className="h-12 md:h-14 w-14" />
             )}
-        </div>
+        </Link>
     );
 };
 

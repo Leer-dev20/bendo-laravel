@@ -37,10 +37,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/paiement/retour', [PaymentController::class, 'return'])->name('payment.return');
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
-        Route::post('/restaurants', [RestaurantController::class, 'store'])->name('restaurants.store');
-        Route::patch('/restaurants/{restaurant}', [RestaurantController::class, 'update'])->name('restaurants.update');
-        Route::delete('/restaurants/{restaurant}', [RestaurantController::class, 'destroy'])->name('restaurants.destroy');
-    });
+    Route::get('/', [\App\Http\Controllers\Admin\AdminController::class, 'index'])->name('dashboard');
+    Route::post('/restaurants', [RestaurantController::class, 'store'])->name('restaurants.store');
+    Route::patch('/restaurants/{restaurant}', [RestaurantController::class, 'update'])->name('restaurants.update');
+    Route::delete('/restaurants/{restaurant}', [RestaurantController::class, 'destroy'])->name('restaurants.destroy');
+    Route::post('/menu-items', [\App\Http\Controllers\Admin\MenuItemController::class, 'store'])->name('menu-items.store');
+    Route::patch('/menu-items/{menuItem}', [\App\Http\Controllers\Admin\MenuItemController::class, 'update'])->name('menu-items.update');
+    Route::delete('/menu-items/{menuItem}', [\App\Http\Controllers\Admin\MenuItemController::class, 'destroy'])->name('menu-items.destroy');
+    Route::post('/daily-menus/toggle', [\App\Http\Controllers\Admin\DailyMenuController::class, 'toggle'])->name('daily-menus.toggle');
+});
 });
 
 Route::post('/webhooks/orange-money', [PaymentController::class, 'orangeMoneyWebhook'])->name('payment.webhook.orange_money');
