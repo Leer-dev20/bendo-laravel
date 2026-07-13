@@ -89,7 +89,7 @@ export default function Index({ restaurants = [] }) {
                     </div>
 
                     <div className="mt-12 mx-auto max-w-3xl">
-                        <p className="text-center text-xs font-semibold uppercase tracking-widest text-secondary/70 mb-4">
+                        <p className="text-center text-xs font-semibold uppercase tracking-widest text-secondary/70 mb-4 ">
                             Nos services
                         </p>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
@@ -105,8 +105,9 @@ export default function Index({ restaurants = [] }) {
                                 icon={Bike}
                                 title="Coursier"
                                 subtitle="Envoie un colis en ville"
-                                badge="Bientôt"
-                                onClick={() => setWaitlist('Coursier')}
+                                badge="Disponible"
+                                active
+                                onClick={() => router.visit('/coursier/demander')}
                             />
                             <ServiceWidget
                                 icon={Plane}

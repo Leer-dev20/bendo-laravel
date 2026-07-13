@@ -7,6 +7,8 @@
 
         <title inertia>{{ config('app.name', 'Bendo') }}</title>
 
+        <link rel="icon" type="image/png" href="{{ asset('frontend-assets/bendofavicon.png') }}">
+
         @routes
         @viteReactRefresh
         @vite(['resources/css/app.css', 'resources/js/app.jsx'])

@@ -5,7 +5,7 @@ export const ServiceWidget = ({ icon: Icon, title, subtitle, badge, active, onCl
         <button
             onClick={onClick}
             className={cn(
-                'group relative flex flex-col items-start gap-3 rounded-3xl bg-card p-5 text-left transition-all duration-300',
+                'group relative flex flex-col items-start gap-3 rounded-3xl bg-card p-5 text-left transition-all duration-300 cursor-pointer',
                 'border border-border/50',
                 active
                     ? 'shadow-card hover:shadow-warm hover:-translate-y-1'

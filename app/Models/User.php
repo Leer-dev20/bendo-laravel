@@ -67,4 +67,8 @@ class User extends Authenticatable
     {
         return $this->wallet ?? $this->wallet()->create(['balance' => 0]);
     }
+    public function courierRequests(): HasMany
+{
+    return $this->hasMany(CourierRequest::class);
+}
 }

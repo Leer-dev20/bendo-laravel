@@ -5,6 +5,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\WalletController;
+use App\Http\Controllers\CourierRequestController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -35,6 +36,11 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/orders/{order}/pay', [PaymentController::class, 'payForOrder'])->name('checkout.payment');
     Route::get('/paiement/retour', [PaymentController::class, 'return'])->name('payment.return');
+
+    Route::get('/coursier/demander', [CourierRequestController::class, 'create'])->name('courier-requests.create');
+    Route::post('/coursier/demander', [CourierRequestController::class, 'store'])->name('courier-requests.store');
+    Route::get('/mes-courses', [CourierRequestController::class, 'index'])->name('courier-requests.index');
+    Route::get('/coursier/demander/{courierRequest}', [CourierRequestController::class, 'show'])->name('courier-requests.show');
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [\App\Http\Controllers\Admin\AdminController::class, 'index'])->name('dashboard');
