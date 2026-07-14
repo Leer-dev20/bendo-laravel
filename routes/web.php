@@ -6,6 +6,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\CourierRequestController;
+use App\Http\Controllers\CourierController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -42,16 +43,25 @@ Route::middleware('auth')->group(function () {
     Route::get('/mes-courses', [CourierRequestController::class, 'index'])->name('courier-requests.index');
     Route::get('/coursier/demander/{courierRequest}', [CourierRequestController::class, 'show'])->name('courier-requests.show');
 
+    // Espace admin
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', [\App\Http\Controllers\Admin\AdminController::class, 'index'])->name('dashboard');
-    Route::post('/restaurants', [RestaurantController::class, 'store'])->name('restaurants.store');
-    Route::patch('/restaurants/{restaurant}', [RestaurantController::class, 'update'])->name('restaurants.update');
-    Route::delete('/restaurants/{restaurant}', [RestaurantController::class, 'destroy'])->name('restaurants.destroy');
-    Route::post('/menu-items', [\App\Http\Controllers\Admin\MenuItemController::class, 'store'])->name('menu-items.store');
-    Route::patch('/menu-items/{menuItem}', [\App\Http\Controllers\Admin\MenuItemController::class, 'update'])->name('menu-items.update');
-    Route::delete('/menu-items/{menuItem}', [\App\Http\Controllers\Admin\MenuItemController::class, 'destroy'])->name('menu-items.destroy');
-    Route::post('/daily-menus/toggle', [\App\Http\Controllers\Admin\DailyMenuController::class, 'toggle'])->name('daily-menus.toggle');
-});
+        Route::get('/', [\App\Http\Controllers\Admin\AdminController::class, 'index'])->name('dashboard');
+        Route::post('/restaurants', [RestaurantController::class, 'store'])->name('restaurants.store');
+        Route::patch('/restaurants/{restaurant}', [RestaurantController::class, 'update'])->name('restaurants.update');
+        Route::delete('/restaurants/{restaurant}', [RestaurantController::class, 'destroy'])->name('restaurants.destroy');
+        Route::post('/menu-items', [\App\Http\Controllers\Admin\MenuItemController::class, 'store'])->name('menu-items.store');
+        Route::patch('/menu-items/{menuItem}', [\App\Http\Controllers\Admin\MenuItemController::class, 'update'])->name('menu-items.update');
+        Route::delete('/menu-items/{menuItem}', [\App\Http\Controllers\Admin\MenuItemController::class, 'destroy'])->name('menu-items.destroy');
+        Route::post('/daily-menus/toggle', [\App\Http\Controllers\Admin\DailyMenuController::class, 'toggle'])->name('daily-menus.toggle');
+    });
+
+    // Espace coursier (livreur)
+    Route::middleware('role:courier,admin')->prefix('coursier')->name('courier.')->group(function () {
+        Route::get('/', [CourierController::class, 'index'])->name('index');
+        Route::patch('/orders/{order}/claim', [CourierController::class, 'claim'])->name('claim');
+        Route::patch('/demandes/{courierRequest}/claim', [CourierRequestController::class, 'claim'])->name('courier-requests.claim');
+        Route::patch('/demandes/{courierRequest}/status', [CourierRequestController::class, 'updateStatus'])->name('courier-requests.update-status');
+    });
 });
 
 Route::post('/webhooks/orange-money', [PaymentController::class, 'orangeMoneyWebhook'])->name('payment.webhook.orange_money');

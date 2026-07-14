@@ -67,4 +67,41 @@ class CourierRequestController extends Controller
 
         return Inertia::render('CourierRequest/Show', ['courierRequest' => $courierRequest]);
     }
+
+    public function claim(Request $request, CourierRequest $courierRequest)
+{
+    $this->authorize('update', $courierRequest);
+
+    if ($courierRequest->courier_id !== null) {
+        return back()->with('error', 'Cette course a déjà été prise.');
+    }
+
+    $courierRequest->update([
+        'courier_id' => $request->user()->id,
+        'status' => 'assigned',
+        'assigned_at' => now(),
+    ]);
+
+    return back()->with('success', 'Course prise.');
+}
+
+public function updateStatus(Request $request, CourierRequest $courierRequest)
+{
+    $this->authorize('update', $courierRequest);
+
+    $data = $request->validate([
+        'status' => 'required|in:picked_up,delivered,cancelled',
+    ]);
+
+    $courierRequest->status = $data['status'];
+    if ($data['status'] === 'picked_up') {
+        $courierRequest->picked_up_at = now();
+    }
+    if ($data['status'] === 'delivered') {
+        $courierRequest->delivered_at = now();
+    }
+    $courierRequest->save();
+
+    return back();
+}
 }
