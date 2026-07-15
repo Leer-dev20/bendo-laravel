@@ -111,6 +111,7 @@ export default function Admin({ restaurants, menuItems, dailyToday, today }) {
         if (!confirm('Supprimer ce restaurant ?')) return;
         router.delete(`/admin/restaurants/${id}`, {
             preserveScroll: true,
+            preserveState: true,
             onSuccess: () => toast.success('Supprimé'),
         });
     };
@@ -118,6 +119,7 @@ export default function Admin({ restaurants, menuItems, dailyToday, today }) {
     const toggleActive = (r, on) => {
         router.patch(`/admin/restaurants/${r.id}`, { is_active: on }, {
             preserveScroll: true,
+            preserveState: true,
             onSuccess: () => toast.success(on ? 'Restaurant activé' : 'Restaurant désactivé'),
         });
     };
@@ -145,17 +147,22 @@ export default function Admin({ restaurants, menuItems, dailyToday, today }) {
         if (!confirm('Supprimer ce plat ?')) return;
         router.delete(`/admin/menu-items/${id}`, {
             preserveScroll: true,
+            preserveState: true,
             onSuccess: () => toast.success('Supprimé'),
         });
     };
 
     const toggleDaily = (item, on) => {
-        router.post('/admin/daily-menus/toggle', {
-            menu_item_id: item.id,
-            restaurant_id: item.restaurant_id,
-            on,
-        }, { preserveScroll: true });
-    };
+    router.post('/admin/daily-menus/toggle', {
+        menu_item_id: item.id,
+        restaurant_id: item.restaurant_id,
+        on,
+    }, {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: () => toast.success(on ? 'Plat ajouté au menu du jour' : 'Plat retiré du menu du jour'),
+    });
+};
 
     const itemsOf = (rid) => menuItems.filter((i) => i.restaurant_id === rid);
     const isToday = (iid) => dailyToday.some((t) => t.menu_item_id === iid);
@@ -262,16 +269,19 @@ export default function Admin({ restaurants, menuItems, dailyToday, today }) {
         );
     };
 
-    const StatCard = ({ label, value, icon: Icon, hint }) => (
-        <div className="rounded-xl border bg-card p-4">
-            <div className="flex items-center justify-between">
-                <p className="text-xs text-muted-foreground">{label}</p>
-                <Icon className="h-4 w-4 text-primary" />
-            </div>
-            <p className="text-2xl font-extrabold text-secondary mt-1">{value}</p>
-            {hint && <p className="text-xs text-muted-foreground mt-0.5">{hint}</p>}
+    const StatCard = ({ label, value, icon: Icon, hint, onClick }) => (
+    <div
+        className={`rounded-xl border bg-card p-4 ${onClick ? 'cursor-pointer hover:border-primary/50 hover:shadow-card transition-all' : ''}`}
+        onClick={onClick}
+    >
+        <div className="flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">{label}</p>
+            <Icon className="h-4 w-4 text-primary" />
         </div>
-    );
+        <p className="text-2xl font-extrabold text-secondary mt-1">{value}</p>
+        {hint && <p className="text-xs text-muted-foreground mt-0.5">{hint}</p>}
+    </div>
+);
 
     return (
         <SidebarProvider>
@@ -318,9 +328,9 @@ export default function Admin({ restaurants, menuItems, dailyToday, today }) {
                                 )}
 
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                    <StatCard label="Restaurants" value={stats.total} icon={Store} hint={`${stats.active} actifs`} />
-                                    <StatCard label="Plats au menu" value={stats.items} icon={Utensils} />
-                                    <StatCard label="Plats du jour" value={stats.todayCount} icon={CalendarDays} hint={today} />
+                                    <StatCard label="Restaurants" value={stats.total} icon={Store} hint={`${stats.active} actifs`} onClick={() => setSection('restos')} />
+                                    <StatCard label="Plats au menu" value={stats.items} icon={Utensils} hint="Cliquer pour gérer" onClick={() => setSection('restos')} />
+                                    <StatCard label="Plats du jour" value={stats.todayCount} icon={CalendarDays} hint={today} onClick={() => setSection('daily')} />
                                     <StatCard label="Actifs" value={stats.active} icon={CheckCircle2} />
                                     <StatCard label="Inactifs" value={stats.inactive} icon={XCircle} />
                                     <StatCard label="Note moyenne" value={stats.avgRating} icon={TrendingUp} />
@@ -443,6 +453,10 @@ export default function Admin({ restaurants, menuItems, dailyToday, today }) {
                                     </div>
                                 </div>
 
+                                <p className="text-xs text-muted-foreground bg-muted/40 rounded-lg px-3 py-2 border border-border">
+                                    💡 Pour ajouter ou modifier un plat, clique sur <strong>"Gérer les plats"</strong> sur la carte du restaurant concerné.
+                                </p>
+
                                 {filteredRestos.length === 0 && (
                                     <p className="text-sm text-muted-foreground py-8 text-center">Aucun restaurant.</p>
                                 )}
@@ -467,7 +481,7 @@ export default function Admin({ restaurants, menuItems, dailyToday, today }) {
                                             </div>
                                             <div className="flex flex-col gap-1.5">
                                                 <Button size="sm" variant="outline" onClick={() => setMenuFor(r)}>
-                                                    <Utensils className="h-3 w-3" />Menu
+                                                    <Utensils className="h-3 w-3" />Gérer les plats
                                                 </Button>
                                                 <Button size="sm" variant="outline" onClick={() => { setEditingResto(r); setOpenResto(true); }}>
                                                     <Pencil className="h-3 w-3" />

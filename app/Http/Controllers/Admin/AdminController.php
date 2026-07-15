@@ -10,15 +10,15 @@ use Inertia\Inertia;
 
 class AdminController extends Controller
 {
-    public function index()
-    {
-        $today = now()->toDateString();
+  public function index()
+{
+    $today = now()->toDateString();
 
-        return Inertia::render('Admin', [
-            'restaurants' => Restaurant::withCount('menuItems')->orderByDesc('created_at')->get(),
-            'menuItems' => MenuItem::orderByDesc('created_at')->get(),
-            'dailyToday' => DailyMenu::where('menu_date', $today)->get(['menu_item_id', 'restaurant_id']),
-            'today' => $today,
-        ]);
-    }
+    return Inertia::render('Admin', [
+        'restaurants' => Restaurant::withCount('menuItems')->orderByDesc('created_at')->get(),
+        'menuItems' => MenuItem::orderByDesc('created_at')->get(),
+        'dailyToday' => DailyMenu::whereDate('menu_date', $today)->get(['menu_item_id', 'restaurant_id']),
+        'today' => $today,
+    ]);
+}
 }

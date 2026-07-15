@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link, useForm } from '@inertiajs/react';
-import { Bike, MapPin, ArrowRight, Package, User as UserIcon, Phone, CreditCard } from 'lucide-react';
+import { Bike, MapPin, ArrowRight, Package, User as UserIcon, Phone, CreditCard, LocateFixed } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,7 @@ const PAYMENT_METHODS = [
 ];
 
 export default function CourierRequestCreate({ zones, rates }) {
+    const [locating, setLocating] = useState(false);
     const form = useForm({
         from_zone_id: '',
         to_zone_id: '',
@@ -38,6 +39,44 @@ export default function CourierRequestCreate({ zones, rates }) {
     const canSubmit = form.data.from_zone_id && form.data.to_zone_id
         && form.data.pickup_address && form.data.dropoff_address
         && form.data.recipient_name && form.data.recipient_phone;
+
+    const useMyLocation = () => {
+        if (!navigator.geolocation) {
+            alert('La géolocalisation n\'est pas supportée par ton navigateur.');
+            return;
+        }
+        setLocating(true);
+        navigator.geolocation.getCurrentPosition(
+            async (pos) => {
+                try {
+                    const { latitude, longitude } = pos.coords;
+                    const res = await fetch(
+                        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`,
+                        { headers: { 'Accept-Language': 'fr' } },
+                    );
+                    const data = await res.json();
+                    const address = data.display_name ?? `${latitude}, ${longitude}`;
+                    form.setData('pickup_address', address);
+
+                    const matched = zones.find((z) =>
+                        address.toLowerCase().includes(z.name.toLowerCase())
+                        || (data.address?.suburb ?? '').toLowerCase().includes(z.name.toLowerCase())
+                        || (data.address?.neighbourhood ?? '').toLowerCase().includes(z.name.toLowerCase()),
+                    );
+                    if (matched) form.setData('from_zone_id', String(matched.id));
+                } catch {
+                    alert('Impossible de récupérer ton adresse. Renseigne-la manuellement.');
+                } finally {
+                    setLocating(false);
+                }
+            },
+            () => {
+                alert('Localisation refusée ou indisponible.');
+                setLocating(false);
+            },
+            { enableHighAccuracy: true, timeout: 8000 },
+        );
+    };
 
     const submit = (e) => {
         e.preventDefault();
@@ -99,7 +138,18 @@ export default function CourierRequestCreate({ zones, rates }) {
                     <div className="rounded-2xl bg-card border border-border p-4 space-y-3">
                         <p className="text-xs font-bold uppercase tracking-wide text-secondary/70">Adresses précises</p>
                         <div className="space-y-1.5">
-                            <Label className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" />Adresse de récupération</Label>
+                            <div className="flex items-center justify-between">
+                                <Label className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" />Adresse de récupération</Label>
+                                <button
+                                    type="button"
+                                    onClick={useMyLocation}
+                                    disabled={locating}
+                                    className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline disabled:opacity-50"
+                                >
+                                    <LocateFixed className="h-3.5 w-3.5" />
+                                    {locating ? 'Localisation...' : 'Ma position'}
+                                </button>
+                            </div>
                             <Input
                                 required
                                 placeholder="Ex: 12 rue des Fleurs, Maârif"
