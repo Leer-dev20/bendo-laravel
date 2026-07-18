@@ -32,11 +32,13 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+    Route::get('/commande/{order}', [OrderController::class, 'confirmation'])->name('orders.confirmation');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status');
 
-    Route::get('/wallet', [WalletController::class, 'show'])->name('wallet.show');
-    Route::post('/wallet/topup', [WalletController::class, 'topup'])->name('wallet.topup');
+    Route::get('/abonnement', [WalletController::class, 'show'])->name('wallet.show');
+    Route::post('/abonnement/recharge', [WalletController::class, 'topup'])->name('wallet.topup');
+    Route::post('/abonnement/recharge-demo', [WalletController::class, 'topupDemo'])->name('wallet.topup-demo');
 
     Route::get('/orders/{order}/pay', [PaymentController::class, 'payForOrder'])->name('checkout.payment');
     Route::get('/paiement/retour', [PaymentController::class, 'return'])->name('payment.return');

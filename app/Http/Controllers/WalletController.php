@@ -10,19 +10,31 @@ class WalletController extends Controller
     public function show(Request $request)
     {
         $wallet = $request->user()->getOrCreateWallet();
-        $wallet->load(['transactions' => fn ($q) => $q->latest()->limit(50)]);
+        $wallet->load(['transactions' => fn ($q) => $q->latest()->limit(30)]);
 
-        return Inertia::render('Wallet/Show', ['wallet' => $wallet]);
+        return Inertia::render('Subscription', ['wallet' => $wallet]);
     }
 
     /**
-     * Initie un rechargement (topup). Le crédit réel du wallet se fait
-     * seulement après confirmation du paiement (voir PaymentController::verify).
+     * Recharge démo : crédite directement, sans passer par un vrai paiement.
+     * Utile en développement / démonstration, à retirer (ou protéger) en prod.
      */
+    public function topupDemo(Request $request)
+    {
+        $data = $request->validate([
+            'amount' => 'required|integer|min:20|max:10000',
+        ]);
+
+        $wallet = $request->user()->getOrCreateWallet();
+        $wallet->credit($data['amount'], 'topup', 'Recharge démo (sans paiement)');
+
+        return back()->with('success', "+{$data['amount']} MAD ajoutés à ta cagnotte");
+    }
+
     public function topup(Request $request)
     {
         $data = $request->validate([
-            'amount' => 'required|integer|min:100', // en centimes ou plus petite unité
+            'amount' => 'required|integer|min:20|max:10000',
             'provider' => 'required|in:stripe,wave,orange_money',
         ]);
 
