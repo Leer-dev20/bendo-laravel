@@ -1,5 +1,6 @@
 import { Link, useForm } from '@inertiajs/react';
-import { ArrowLeft, Wallet, CreditCard, Banknote } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowLeft, Wallet, CreditCard, Banknote, LocateFixed } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,9 +22,39 @@ export default function Checkout({ walletBalance }) {
     items: cart.lines.map((l) => ({ id: l.id, quantity: l.quantity })),
 });
 
+    const [locating, setLocating] = useState(false);
     const total = cart.subtotal + cart.deliveryFee + PLATFORM_FEE;
     const walletInsufficient = form.data.payment_method === 'wallet' && walletBalance < total;
 
+    const useMyLocation = () => {
+    if (!navigator.geolocation) {
+        alert('La géolocalisation n\'est pas supportée par ton navigateur.');
+        return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+            try {
+                const { latitude, longitude } = pos.coords;
+                const res = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`,
+                    { headers: { 'Accept-Language': 'fr' } },
+                );
+                const data = await res.json();
+                form.setData('address', data.display_name ?? `${latitude}, ${longitude}`);
+            } catch {
+                alert('Impossible de récupérer ton adresse. Renseigne-la manuellement.');
+            } finally {
+                setLocating(false);
+            }
+        },
+        () => {
+            alert('Localisation refusée ou indisponible.');
+            setLocating(false);
+        },
+        { enableHighAccuracy: true, timeout: 8000 },
+    );
+};
     const submit = (e) => {
     e.preventDefault();
     if (walletInsufficient) return;
@@ -54,11 +85,22 @@ export default function Checkout({ walletBalance }) {
                         <Input id="phone" type="tel" value={form.data.phone} onChange={(e) => form.setData('phone', e.target.value)} placeholder="+212 6 12 34 56 78" />
                         {form.errors.phone && <p className="text-xs text-destructive">{form.errors.phone}</p>}
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="address">Adresse de livraison *</Label>
-                        <Input id="address" value={form.data.address} onChange={(e) => form.setData('address', e.target.value)} placeholder="Rue, immeuble, étage — Casablanca" />
-                        {form.errors.address && <p className="text-xs text-destructive">{form.errors.address}</p>}
-                    </div>
+                   <div className="space-y-2">
+    <div className="flex items-center justify-between">
+        <Label htmlFor="address">Adresse de livraison *</Label>
+        <button
+            type="button"
+            onClick={useMyLocation}
+            disabled={locating}
+            className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline disabled:opacity-50"
+        >
+            <LocateFixed className="h-3.5 w-3.5" />
+            {locating ? 'Localisation...' : 'Ma position'}
+        </button>
+    </div>
+    <Input id="address" value={form.data.address} onChange={(e) => form.setData('address', e.target.value)} placeholder="Rue, immeuble, étage — Casablanca" />
+    {form.errors.address && <p className="text-xs text-destructive">{form.errors.address}</p>}
+</div>
                     <div className="space-y-2">
                         <Label htmlFor="notes">Instructions (optionnel)</Label>
                         <Textarea id="notes" value={form.data.notes} onChange={(e) => form.setData('notes', e.target.value)} placeholder="Code porte, étage, allergies..." />

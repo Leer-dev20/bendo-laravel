@@ -24,5 +24,7 @@ class AppServiceProvider extends ServiceProvider
         Vite::prefetch(concurrency: 3);
 
         Gate::policy(\App\Models\CourierRequest::class, \App\Policies\CourierRequestPolicy::class);
+
+        \App\Models\CourierRequest::observe(\App\Observers\CourierRequestObserver::class);
     }
 }

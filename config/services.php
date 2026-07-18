@@ -35,10 +35,10 @@ return [
         ],
     ],
 
-    'stripe' => [
-        'secret' => env('STRIPE_SECRET_KEY'),
-        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
-    ],
+  'stripe' => [
+    'secret' => env('STRIPE_SECRET_KEY'),
+    'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+],
 
     'wave' => [
         'api_key' => env('WAVE_API_KEY'),

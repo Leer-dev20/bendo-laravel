@@ -6,6 +6,7 @@ use App\Models\CourierRequest;
 use App\Models\Zone;
 use App\Models\ZoneRate;
 use Illuminate\Http\Request;
+use App\Events\CourierRequestStatusUpdated;
 use Inertia\Inertia;
 
 class CourierRequestController extends Controller
@@ -82,6 +83,8 @@ class CourierRequestController extends Controller
         'assigned_at' => now(),
     ]);
 
+    broadcast(new CourierRequestStatusUpdated($courierRequest))->toOthers();
+
     return back()->with('success', 'Course prise.');
 }
 
@@ -102,6 +105,9 @@ public function updateStatus(Request $request, CourierRequest $courierRequest)
     }
     $courierRequest->save();
 
+    broadcast(new CourierRequestStatusUpdated($courierRequest))->toOthers();
+
     return back();
 }
+
 }
