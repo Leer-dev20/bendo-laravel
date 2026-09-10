@@ -48,7 +48,7 @@ const linkColumns = [
 const socials = [
     { icon: Instagram, label: 'Instagram', href: '#' },
     { icon: Facebook, label: 'Facebook', href: '#' },
-    { icon: X, label: 'Twitter', href: '#' }, // On garde le label "Twitter" si tu veux, mais l'icône devient X
+    { icon: X, label: 'Twitter', href: '#' },
     { icon: Linkedin, label: 'LinkedIn', href: '#' },
 ];
 

@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { BendoLogo } from './BendoLogo';
-import { LogIn, Shield, LogOut, Wallet, Bike } from 'lucide-react';
+import { LogIn, Shield, LogOut, Wallet, Bike, UserCircle } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -27,7 +27,13 @@ export const Header = () => {
                             <Link href="/admin"><Shield className="h-4 w-4" />Admin</Link>
                         </Button>
                     )}
+                    {user && (
+                         <Button asChild variant="ghost" size="icon" className="rounded-full h-9 w-9" title="Mon profil">
+                            <Link href="/profile"><UserCircle className="h-5 w-5" /></Link>
+                            </Button>
+                    )}
                     {user ? (
+
                         <Button variant="emerald" size="sm" className="rounded-full font-semibold" onClick={signOut}>
                             <LogOut className="h-4 w-4" />Déconnexion
                         </Button>
